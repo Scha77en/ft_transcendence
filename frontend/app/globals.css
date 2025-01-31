@@ -1,0 +1,283 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
+
+html,
+body {
+  height: 100%;
+  background-color: "#222831";
+  font-family: "Kaisei Decol";
+  color: "#FFD369";
+}
+
+.slide {
+  padding-top: 40px;
+  height: 400px;
+  /* background-color: brown; */
+}
+.slide img {
+  transition: transform 0.5s ease;
+}
+.active img {
+  transform: scale(1);
+}
+.inactive img {
+  transform: scale(0.8);
+}
+
+
+.black-bg {
+  background-color: #222831;
+}
+.black-light-bg {
+  background-color: #393E46;
+}
+.yellow-bg {
+  background-color: #FFD369;
+}
+.white-bg {
+  background-color: #EEEEEE;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+                 
+}
+
+.fade-in {
+  animation: fadeIn 1s ease-in forwards; /* Animation duration of 1 second */
+}
+
+.border-custom {
+    border-width: 1px;
+}
+
+
+
+/* animation */
+
+@keyframes fadeIng {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes bounce {
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+
+    40% {
+        transform: translateY(-7px);
+    }
+
+    60% {
+        transform: translateY(-3px);
+    }
+}
+
+.fade-in-globale {
+    animation: fadeIng 2s ease-in-out;
+}
+
+.bounce {
+    animation: bounce 3s infinite;
+}
+
+
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.gradient-animate {
+    background: linear-gradient(270deg, #222831, #393E46, #FFD369);
+    background-size: 600% 600%;
+    animation: gradientAnimation 10s ease infinite;
+}
+
+
+/* loader */
+
+.loader {
+  border: 5px solid #393E46; /* Light gray */
+  border-top: 5px solid #ffd369; /* Yellow */
+  border-radius: 50%;
+  animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(90deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  75% {
+    transform: rotate(270deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loaderSetting {
+  border: 10px solid #393E46;
+  /* Light grey */
+  border-top: 10px solid #ffd369;
+  /* Blue */
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  animation: spin 3s linear infinite;
+}
+
+.loaderLogin {
+  border: 8px solid #393E46;
+  /* Light grey */
+  border-top: 8px solid #ffd369;
+  /* Blue */
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 3s linear infinite;
+}
+.loaderSimpleLogin {
+  border: 5px solid #393E46;
+  /* Light grey */
+  border-top: 5px solid #ffd369;
+  /* Blue */
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  animation: spin 3s linear infinite;
+}
+
+
+/* Blur effect for background */
+.blur-bg {
+  filter: blur(5px);
+  pointer-events: none; /* Ensure user can't interact with blurred background */
+}
+
+/* Popup styles */
+.popup-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000; /* Ensure it is above the blurred background */
+  background-color: #222831;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+}
+
+.popup-content {
+  filter: none; /* Ensure popup content isn't blurred */
+}
+
+
+@keyframes glitter {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-glitter {
+  animation: glitter 5s linear infinite;
+}
+
+/* .neon-shadow {
+  filter: drop-shadow(0 0 10px #FFD369) drop-shadow(0 0 20px #FFD369) drop-shadow(0 0 30px #FFD369);
+  
+} */
+
+/* .neon-shadow:hover {
+  filter: drop-shadow(0 0 5px #FFD369) drop-shadow(0 0 8px #FFD369) drop-shadow(0 0 10px #FFD369);
+  transition: filter 0.2s ease-in-out;
+} */
+
+.neon-shadow:hover {
+  filter: drop-shadow(0 0 2px #ffd2699b) drop-shadow(0 0 5px #ffd2699a) drop-shadow(0 0 7px #FFD369);
+}
+
+
+.no-scroll {
+  overflow: hidden;
+}

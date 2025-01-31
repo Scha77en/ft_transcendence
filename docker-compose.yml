@@ -1,0 +1,220 @@
+version: '3.8'
+
+services:
+  db:
+    container_name: postgres_db
+    image: postgres:latest
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+    networks:
+      - backend_network
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    restart: always
+    networks:
+      - backend_network
+
+  backend:
+    container_name: backend
+    build: ./myproject
+    volumes:
+      - ./myproject:/app # Mount the project directory to the container
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    healthcheck:
+      test: ["CMD", "python", "manage.py", "migrate", "--check"] # Check if the database is ready
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - backend_network
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      backend:
+        condition: service_healthy
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - backend_network
+
+  nginx:
+    container_name: nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+      - "8002:8002"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: always
+    networks:
+      - backend_network
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml' # Use the custom configuration file
+      - '--storage.tsdb.path=/prometheus' # Store the database in the volume
+      - '--storage.tsdb.retention.time=15d' # Keep the data for 15 days
+      - '--storage.tsdb.retention.size=5GB' # Limit the size of the database to 5GB
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries' # Add the console libraries
+      - '--web.console.templates=/usr/share/prometheus/consoles'  # Add the console templates
+    ports:
+      - "9090:9090"
+    restart: always
+    networks:
+      - backend_network
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/etc/grafana/dashboards
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - backend_network
+    env_file:
+      - .env
+    restart: always
+
+  node-exporter:
+    container_name: node-exporter
+    image: prom/node-exporter:latest  # Changed image to correct node-exporter
+    user: "0:0"  # Run as root:root
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc' # Use the host's /proc
+      - '--path.rootfs=/rootfs' # Use the host's /
+      - '--path.sysfs=/host/sys'  # Use the host's /sys
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)' # Exclude unnecessary filesystems
+    ports:
+      - "9100:9100"
+    restart: always
+    networks:
+      - backend_network
+    env_file:
+      - .env
+
+  redis-exporter:
+    container_name: redis-exporter
+    image: oliver006/redis_exporter:latest
+    ports:
+      - "9121:9121"
+    networks:
+      - backend_network
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    restart: always
+
+  postgres-exporter:
+    container_name: postgres-exporter
+    image: prometheuscommunity/postgres-exporter:latest
+    command:
+      - '--no-collector.stat_bgwriter' # Disable the problematic collector
+    volumes:
+      - ./prometheus/postgres_queries.yml:/etc/postgres_exporter/queries.yml:ro # Mount the custom queries
+    ports:
+      - "9187:9187"
+    networks:
+      - backend_network
+    env_file:
+      - .env
+    depends_on:
+      - db
+    restart: always
+  
+  celery_worker:
+    container_name: celery_worker
+    build: ./myproject
+    command: celery -A myproject worker -l INFO -c 2
+    user: celeryuser
+    volumes:
+      - ./myproject:/app
+    depends_on:
+      backend:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    env_file:
+      - .env
+    networks:
+      - backend_network
+    restart: always
+
+  celery_beat:
+    container_name: celery_beat
+    build: ./myproject
+    command: celery -A myproject beat -l INFO
+    user: celeryuser
+    volumes:
+      - ./myproject:/app
+    depends_on:
+      backend:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    env_file:
+      - .env
+    networks:
+      - backend_network
+    restart: always
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  backend_network:
+    driver: bridge

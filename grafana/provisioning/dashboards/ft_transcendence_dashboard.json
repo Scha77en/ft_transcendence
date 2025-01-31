@@ -1,0 +1,263 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "links": [],
+  "panels": [
+    {
+      "title": "System Overview",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "type": "graph",
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 10
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 70 },
+              { "color": "red", "value": 85 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+          "legendFormat": "CPU Usage %",
+          "refId": "A"
+        },
+        {
+          "expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)",
+          "legendFormat": "Memory Usage %",
+          "refId": "B"
+        },
+        {
+          "expr": "100 * (1 - node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"})",
+          "legendFormat": "Disk Usage % (Root)",
+          "refId": "C"
+        }
+      ],
+      "description": "Overview of system resources",
+      "timeFrom": null,
+      "timeShift": null,
+      "pluginVersion": "8.0.0",
+      "datasource": "Prometheus",
+      "interval": "1m",
+      "legend": {
+        "show": true,
+        "values": true,
+        "min": false,
+        "max": false,
+        "current": true,
+        "total": false,
+        "avg": true
+      },
+      "yaxes": [
+        {
+          "format": "percent",
+          "label": "Usage",
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": false
+        }
+      ]
+    },
+    {
+      "title": "Django Requests by Method",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 7,
+      "panels": [],
+      "targets": [
+        {
+          "expr": "rate(django_http_requests_total_by_method_total[1m])",
+          "legendFormat": "{{method}}",
+          "refId": "A"
+        }
+      ],
+      "type": "graph"
+    },
+    {
+      "title": "Django Response Status Codes",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 8,
+      "panels": [],
+      "targets": [
+        {
+          "expr": "rate(django_http_responses_total_by_status_total[5m])",
+          "legendFormat": "{{status}}",
+          "refId": "A"
+        }
+      ],
+      "type": "graph"
+    },
+    {
+      "title": "Redis Metrics",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 3,
+      "panels": [],
+      "targets": [
+        {
+          "expr": "redis_memory_used_bytes",
+          "legendFormat": "Memory Used",
+          "refId": "A"
+        },
+        {
+          "expr": "redis_connected_clients",
+          "legendFormat": "Connected Clients",
+          "refId": "B"
+        },
+        {
+          "expr": "redis_commands_processed_total",
+          "legendFormat": "Commands Processed",
+          "refId": "C"
+        },
+        {
+          "expr": "redis_keyspace_hits_total",
+          "legendFormat": "Keyspace Hits",
+          "refId": "D"
+        }
+      ],
+      "type": "graph"
+    },
+    {
+      "title": "PostgreSQL Metrics",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "id": 5,
+      "panels": [],
+      "targets": [
+        {
+          "expr": "pg_stat_database_tup_fetched{datname=~\"$database\"}",
+          "legendFormat": "Rows Fetched",
+          "refId": "A"
+        },
+        {
+          "expr": "pg_stat_database_numbackends{datname=~\"$database\"}",
+          "legendFormat": "Active Connections",
+          "refId": "B"
+        },
+        {
+          "expr": "rate(pg_stat_database_xact_commit{datname=~\"$database\"}[5m])",
+          "legendFormat": "Transactions/sec",
+          "refId": "C"
+        },
+        {
+          "expr": "pg_stat_database_blks_hit_ratio{datname=~\"$database\"}",
+          "legendFormat": "Cache Hit Ratio",
+          "refId": "D"
+        }
+      ],
+      "type": "graph"
+    },
+    {
+      "title": "PostgreSQL Connection Stats",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "id": 6,
+      "panels": [],
+      "targets": [
+        {
+          "expr": "pg_stat_database_deadlocks{datname=~\"$database\"}",
+          "legendFormat": "Deadlocks",
+          "refId": "A"
+        },
+        {
+          "expr": "pg_stat_database_conflicts{datname=~\"$database\"}",
+          "legendFormat": "Conflicts",
+          "refId": "B"
+        },
+        {
+          "expr": "pg_settings_max_connections",
+          "legendFormat": "Max Connections",
+          "refId": "C"
+        }
+      ],
+      "type": "graph"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 27,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "name": "database",
+        "type": "query",
+        "datasource": "Prometheus",
+        "query": "label_values(pg_stat_database_tup_fetched, datname)",
+        "refresh": 2
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "ft_transcendence Monitoring Dashboard",
+  "version": 1
+}

@@ -1,0 +1,47 @@
+# Global settings that apply to all jobs unless overridden
+global:
+  scrape_interval: 30s     # How often Prometheus will collect metrics
+  evaluation_interval: 30s # How often Prometheus will evaluate rules
+  scrape_timeout: 10s     # Maximum time to wait for a scrape to complete
+
+# Path to alert rules file
+rule_files:
+  - "alert.rules.yml"    # External file containing alerting rules
+
+# List of targets Prometheus will monitor
+scrape_configs:
+  # Backend service monitoring
+  - job_name: 'backend'               # Unique name for the backend monitoring job
+    scrape_interval: 30s             # How often to scrape this specific target
+    scrape_timeout: 10s              # Timeout for this specific target
+    metrics_path: '/metrics'         # URL path where metrics are exposed
+    static_configs:
+      - targets: ['backend:8000']    # Server address and port to scrape
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'           # Monitors Prometheus itself
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    static_configs:
+      - targets: ['localhost:9090']  # Default Prometheus port
+
+  # Node Exporter monitoring (system metrics)
+  - job_name: 'node-exporter'        # Monitors host system metrics
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    static_configs:
+      - targets: ['node-exporter:9100']  # Default Node Exporter port
+
+  # Redis monitoring
+  - job_name: 'redis'                # Monitors Redis metrics
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    static_configs:
+      - targets: ['redis-exporter:9121'] # Redis Exporter port
+
+  # PostgreSQL monitoring
+  - job_name: 'postgres'             # Monitors PostgreSQL metrics
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    static_configs:
+      - targets: ['postgres-exporter:9187'] # Postgres Exporter port
